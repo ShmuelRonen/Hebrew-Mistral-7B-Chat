@@ -1,0 +1,9 @@
+transformers
+torch
+gradio
+sentencepiece
+protobuf
+bitsandbytes
+accelerate
+nltk
+nltk[punkt]
