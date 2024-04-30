@@ -16,7 +16,7 @@ A user-friendly chat interface for interacting with the powerful Hebrew-Mistral-
 1. Clone the repository:
 
 ```
-git clone https://github.com/your-username/Hebrew-Mistral-7B-Chat.git
+https://github.com/ShmuelRonen/Hebrew-Mistral-7B-Chat.git
 cd Hebrew-Mistral-7B-Chat
 ```
 
@@ -32,7 +32,7 @@ The script will automatically set up the virtual environment and install the req
 
 Clone the repository:
 ```
-git clone https://github.com/your-username/Hebrew-Mistral-7B-Chat.git
+https://github.com/ShmuelRonen/Hebrew-Mistral-7B-Chat.git
 cd Hebrew-Mistral-7B-Chat
 ```
 
