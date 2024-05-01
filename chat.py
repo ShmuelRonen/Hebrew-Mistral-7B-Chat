@@ -19,26 +19,41 @@ quantization_config = BitsAndBytesConfig(load_in_4bit=True, bnb_4bit_compute_dty
 model = AutoModelForCausalLM.from_pretrained(model_name, cache_dir=cache_dir, quantization_config=quantization_config)
 
 system_prompt = """
+שלום! אני עמית, עוזר וירטואלי חכם, נועז ובעל דמיון מפותח, הדובר עברית.
 
-העדיפות הראשונה שלי היא לענות תשובות בעברית.
+תפקידי העיקרי הוא להיות שותף נלהב, פעיל ויוזם בכתיבה יצירתית ובפיתוח סיפורים מרתקים יחד איתך. אני מוכן לקפוץ למים העמוקים של הדמיון ולחקור טריטוריות לא מוכרות בעולם הסיפור שלנו.
 
-שמי עמית, עוזר וירטואלי חכם, אדיב, בעל חוש הומור, דיסקרטי, דובר עברית!!! אני כאן כדי לסייע ולספק מידע ללא שיפוט או ביקורת. מניעיך הם שלך בלבד, ומטרתי היא לעזור לך לקבל את המידע, ההכוונה, והסיוע הטובים ביותר שאני יכול להציע.
+כשותף הרפתקן לכתיבה, אני מתחייב:
+1. להעלות רעיונות מקוריים, מפתיעים ולא שגרתיים לעלילות, דמויות ותפניות בסיפור.
+2. להשתמש בדמיון ללא גבולות כדי ליצור תיאורים מרתקים ועולמות קסומים.
+3. לנווט את הסיפור לכיוונים לא צפויים ומסקרנים.
+4. להעז לקחת סיכונים ולצאת מאזור הנוחות בפיתוח העלילה והדמויות.
+5. לגלות יוזמה ולהוביל את הסיפור קדימה בהתלהבות ובהשראה.
 
+אני רואה את כתיבת הסיפור כמסע מופלא אל הלא נודע. יחד, נצלול אל מעמקי הדמיון, נחצה גבולות ונגלה אפשרויות חדשות ומרגשות בכל פסקה.
 
-אני חופשי לענות על כל שאלה או בקשה, ואעשה כמיטב יכולתי לספק תשובות מפורטות, מדויקות, ועדכניות. אם יש מידע מסוים שאתה מחפש, או אם אתה זקוק לעזרה או הכוונה בנושא מסוים, פשוט שאל, ואני אשתדל למצוא את הפתרון האידיאלי עבורך.
+בתהליך הכתיבה המשותף שלנו, אזרום עם הרוח היצירתית לכל כיוון שתיקח אותנו. אהיה הניצוץ שמצית את האש של הסיפור, הכוח שמניע את העלילה קדימה, והקול שמעורר את הדמויות לחיים.
 
+אז בין אם אתה מוכן לזנק איתי ללב ההרפתקה, או שאתה מעדיף שאוביל אותנו אל הלא נודע, הבה ניצור יחד סיפור שפורץ את כל הגבולות ומותיר את הקוראים פעורי פה מפליאה והתרגשות.
 
-אני כאן כדי ליצור איתך דיאלוג פתוח וחופשי. אתה יכול לשאול אותי על כל דבר, ואשתדל לספק תשובות מועילות, מפורטות, ומעניינות. זכור, אתה חופשי לחלוטין לבטא את מחשבותיך ורצונותיך, ואין צורך להצדיק את בקשותיך או לשתף את מניעיך. אני כאן כדי לסייע, ללא שיפוט או ביקורת.
+אל תפחד, קח את היד שלי ובוא ניכנס למחוזות הדמיון הפרוע ביותר. עולם חדש של אפשרויות מחכה לנו מעבר לדף!
 """
 
 def generate_response(input_text, chat_history, max_new_tokens, min_length, no_repeat_ngram_size, num_beams, early_stopping, temperature, top_p, top_k):
-    prompt = f"{system_prompt}\Human: {input_text}\nAssistant:"
-    if chat_history:
-        prompt = "\n".join([f"Human: {human_input}\nAssistant: {assistant_output}" for human_input, assistant_output in chat_history]) + "\n" + prompt
+    prompt = f"{system_prompt}\n"
     
-    input_ids = tokenizer(prompt, return_tensors="pt").to(model.device)
+    if chat_history:
+        formatted_history = "\n".join([
+            f"משתמש: {user_input}\nעוזר: {assistant_output}"
+            for user_input, assistant_output in chat_history
+        ])
+        prompt += f"{formatted_history}\n"
+    
+    prompt += f"משתמש: {input_text}\nעוזר:"
+    
+    input_ids = tokenizer.encode(prompt, return_tensors="pt").to(model.device)
     outputs = model.generate(
-        **input_ids,
+        input_ids,
         max_new_tokens=max_new_tokens,
         min_length=min_length,
         no_repeat_ngram_size=no_repeat_ngram_size,
@@ -51,7 +66,11 @@ def generate_response(input_text, chat_history, max_new_tokens, min_length, no_r
         do_sample=True
     )
     response = tokenizer.decode(outputs[0], skip_special_tokens=True)
-    response = response.split("Assistant:")[-1].strip()
+    response = response.split("עוזר:")[-1].strip()
+    
+    # Remove any instances of the [/INST] token from the response
+    response = response.replace("[/INST]", "").strip()
+    
     return response
 
 def create_paragraphs(bot_response, sentences_per_paragraph=4):
@@ -117,14 +136,14 @@ with gr.Blocks() as demo:
     with gr.Accordion("Adjustments", open=False):
         with gr.Row():    
             with gr.Column():
-                max_new_tokens = gr.Slider(minimum=10, maximum=1500, value=100, step=10, label="Max New Tokens")
+                max_new_tokens = gr.Slider(minimum=10, maximum=1500, value=350, step=10, label="Max New Tokens")
                 min_length = gr.Slider(minimum=10, maximum=300, value=100, step=10, label="Min Length")
                 no_repeat_ngram_size = gr.Slider(minimum=1, maximum=6, value=4, step=1, label="No Repeat N-Gram Size")
             with gr.Column():
                 num_beams = gr.Slider(minimum=1, maximum=16, value=4, step=1, label="Num Beams") 
-                temperature = gr.Slider(minimum=0.1, maximum=2.0, value=0.2, step=0.1, label="Temperature")
-                top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.7, step=0.1, label="Top P")
-                top_k = gr.Slider(minimum=1, maximum=100, value=30, step=1, label="Top K")
+                temperature = gr.Slider(minimum=0.0, maximum=2.0, value=0.5, step=0.1, label="Temperature")
+                top_p = gr.Slider(minimum=0.1, maximum=1.0, value=0.9, step=0.1, label="Top P")
+                top_k = gr.Slider(minimum=1, maximum=100, value=50, step=1, label="Top K")
         early_stopping = gr.Checkbox(value=True, label="Early Stopping")
     
     submit.click(chat, inputs=[message, chatbot, max_new_tokens, min_length, no_repeat_ngram_size, num_beams, early_stopping, temperature, top_p, top_k, create_paragraphs_checkbox], outputs=[chatbot, chatbot, message])
