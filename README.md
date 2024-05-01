@@ -8,7 +8,7 @@ A user-friendly chat interface for interacting with the powerful Hebrew-Mistral-
 
 ![Chat](https://github.com/ShmuelRonen/Hebrew-Mistral-7B-Chat/assets/80190186/1efb052d-1940-4ce8-9c65-af45856b1498)
 
-### New change in chat.py: Improving the expressiveness of the model
+#### NEW: I make change in chat.py that Improving the expressiveness of the model
 
 ## Installation
 
